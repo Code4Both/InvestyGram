@@ -103,7 +103,15 @@ const LandingPage = () => {
                   alt="FileShare Dashboard"
                   className="rounded shadow-lg"
                 /> */}
-                <img src="/logo4.jpg" width={800} height={600} alt="FileShare Dashboard" className="rounded shadow-lg" />
+{/*                 <img src="/logo4.jpg" width={800} height={600} alt="FileShare Dashboard" className="rounded shadow-lg" /> */}
+              <Image 
+                  src="/logo4.jpg" 
+                  width={800} 
+                  height={600} 
+                  alt="FileShare Dashboard" 
+                  className="rounded shadow-lg" 
+                  priority
+                />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-white backdrop-blur-xl p-4 rounded-lg border border-white/20 shadow-xl">
                 <div className="flex items-center gap-2">
