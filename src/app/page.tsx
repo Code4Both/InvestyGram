@@ -105,7 +105,7 @@ const LandingPage = () => {
                 /> */}
 {/*                 <img src="/logo4.jpg" width={800} height={600} alt="FileShare Dashboard" className="rounded shadow-lg" /> */}
               <Image 
-                  src="/logo4.jpg" 
+                  src="/logo2.png" 
                   width={800} 
                   height={600} 
                   alt="FileShare Dashboardd" 
