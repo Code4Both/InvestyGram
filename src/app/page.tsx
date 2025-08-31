@@ -2,7 +2,6 @@
 // import CustomLayout from "../customLanding"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import Footer from "@/components/Footer"
 import {
   UploadCloud,
@@ -36,10 +35,13 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ChatBot from "@/components/ChatBot"
 import { motion } from "framer-motion";
+import Image from "next/image"
 
 const LandingPage = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [imageError, setImageError] = useState(false)
+  const [currentImageSrc, setCurrentImageSrc] = useState("/logo.webp")
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
@@ -103,7 +105,37 @@ const LandingPage = () => {
                   alt="FileShare Dashboard"
                   className="rounded shadow-lg"
                 /> */}
-                <img src="/logo4.jpg" width={800} height={600} alt="FileShare Dashboard" className="rounded shadow-lg" />
+                <div className="relative">
+                  {!imageError ? (
+                    <Image 
+                      src={currentImageSrc} 
+                      width={800} 
+                      height={600} 
+                      alt="InvestyGram Dashboard" 
+                      className="rounded shadow-lg" 
+                      priority
+                      onError={() => {
+                        // Try different image formats if one fails
+                        if (currentImageSrc === "/logo.webp") {
+                          setCurrentImageSrc("/logo2.png");
+                        } else if (currentImageSrc === "/logo3.jpeg") {
+                          setCurrentImageSrc("/logo4.jpg");
+                        } else {
+                          setImageError(true);
+                        }
+                      }}
+                      unoptimized={false}
+                    />
+                  ) : (
+                    <div className="w-[800px] h-[600px] bg-gradient-to-br from-primary/20 to-purple-600/20 rounded shadow-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <Shield className="h-16 w-16 text-primary mx-auto mb-4" />
+                        <p className="text-primary font-medium">InvestyGram Dashboard</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* <img src="/logo4.jpg" width={800} height={600} alt="FileShare Dashboard" className="rounded shadow-lg" /> */}
               </div>
               <div className="absolute -bottom-6 -left-6 bg-white backdrop-blur-xl p-4 rounded-lg border border-white/20 shadow-xl">
                 <div className="flex items-center gap-2">
@@ -489,11 +521,15 @@ const LandingPage = () => {
               </p>
               <div className="mt-6 flex items-center">
                 <Image
-                  src={testimonial.avatar || "/placeholder.svg"}
+                  src={testimonial.avatar || "/user1.png"}
                   alt={testimonial.name}
                   width={48}
                   height={48}
                   className="rounded-full mr-4"
+                  onError={(e) => {
+                    // Fallback to a default avatar if image fails to load
+                    e.currentTarget.src = "/user1.png";
+                  }}
                 />
                 <div>
                   <h4 className="font-medium text-gray-900">{testimonial.name}</h4>

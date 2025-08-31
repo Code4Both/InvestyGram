@@ -26,58 +26,52 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
+// Define the form schema
 const formSchema = z.object({
-  amount: z.string()
-    .min(1, "Amount is required")
-    .transform((val) => Number(val))
-    .refine((val) => !isNaN(val) && val > 0, "Amount must be a positive number"),
-  equity: z.string()
-    .min(1, "Equity percentage is required")
-    .transform((val) => Number(val))
-    .refine((val) => !isNaN(val) && val >= 0 && val <= 100, "Equity must be between 0 and 100"),
-  royalty: z.string()
-    .min(1, "Royalty percentage is required")
-    .transform((val) => Number(val))
-    .refine((val) => !isNaN(val) && val >= 0 && val <= 100, "Royalty must be between 0 and 100"),
-  conditions: z.string()
-    .min(1, "Conditions are required")
-    .transform(val => val.split('\n').filter(line => line.trim() !== '')),
+  amount: z.string().min(1, "Amount is required"),
+  equity: z.string().min(1, "Equity percentage is required"),
+  royalty: z.string().min(1, "Royalty percentage is required"),
+  conditions: z.string().min(1, "Conditions are required"),
   status: z.enum(['pending', 'accepted', 'rejected']).default('pending'),
 });
 
+// Type for the form input values
+type FormValues = z.infer<typeof formSchema>;
+
+// Type for processed data after transformation
+interface ProcessedFormData {
+  amount: number;
+  equity: number;
+  royalty: number;
+  conditions: string[];
+  status: 'pending' | 'accepted' | 'rejected';
+}
+
 export default function MakeOffer() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<{ startupId: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 0,
-      equity: 0,
-      royalty: 0,
-      conditions: [],
-      status: "pending" as const,
+      amount: "",
+      equity: "",
+      royalty: "",
+      conditions: "",
+      status: "pending",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const saveOfferToDatabase = async (values: ProcessedFormData) => {
     try {
-      setIsSubmitting(true);
       const investorId = localStorage.getItem("InvestorId");
       
       if (!investorId) {
         toast.error("Please log in to make an offer");
+        setIsSubmitting(false);
         return;
       }
-
-      // Convert string values to numbers before sending
-      const formattedValues = {
-        ...values,
-        amount: Number(values.amount),
-        equity: Number(values.equity),
-        royalty: Number(values.royalty),
-      };
 
       const response = await fetch("/api/bids", {
         method: "POST",
@@ -87,8 +81,8 @@ export default function MakeOffer() {
         body: JSON.stringify({
           startupId: params.startupId,
           investorId,
-          ...formattedValues,
-          status: "pending"
+          ...values,
+          status: "pending",
         }),
       });
 
@@ -99,11 +93,53 @@ export default function MakeOffer() {
         router.push(`/investor/discover/${params.startupId}`);
       } else {
         toast.error(data.error || "Failed to submit offer");
+        setIsSubmitting(false);
       }
     } catch (error) {
-      toast.error("An error occurred while submitting the offer");
+      toast.error("An error occurred while submitting offer");
       console.error("Error submitting offer:", error);
-    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  async function onSubmit(values: FormValues) {
+    try {
+      setIsSubmitting(true);
+
+      // Process and validate form values
+      const processedValues: ProcessedFormData = {
+        amount: Number(values.amount),
+        equity: Number(values.equity),
+        royalty: Number(values.royalty),
+        conditions: values.conditions.split('\n').filter((line: string) => line.trim() !== ''),
+        status: values.status
+      };
+      
+      // Validate the numbers
+      if (isNaN(processedValues.amount) || processedValues.amount <= 0) {
+        toast.error("Please enter a valid positive amount");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      if (isNaN(processedValues.equity) || processedValues.equity < 0 || processedValues.equity > 100) {
+        toast.error("Please enter a valid equity percentage (0-100%)");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      if (isNaN(processedValues.royalty) || processedValues.royalty < 0 || processedValues.royalty > 100) {
+        toast.error("Please enter a valid royalty percentage (0-100%)");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Submit to database
+      await saveOfferToDatabase(processedValues);
+      
+    } catch (error) {
+      console.error("Error submitting offer:", error);
+      toast.error("Failed to submit offer. Please try again.");
       setIsSubmitting(false);
     }
   }
@@ -214,6 +250,13 @@ export default function MakeOffer() {
                   </FormItem>
                 )}
               />
+
+              <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
+                <h3 className="text-lg font-medium text-blue-800 mb-2">Important Notice</h3>
+                <p className="text-blue-700 text-sm">
+                  This offer will be submitted to the startup for review. The startup will be notified of your offer and can accept, reject, or negotiate the terms.
+                </p>
+              </div>
 
               <div className="flex justify-end gap-4">
                 <Button
