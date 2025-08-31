@@ -811,7 +811,7 @@ export default function Navbar() {
         userType === "investor" && (
           <div className="fixed bottom-4 right-4 bg-background border rounded-lg shadow-lg p-4 max-w-xs w-full z-50 animate-in slide-in-from-right-10">
             <div className="flex justify-between items-start mb-2">
-              <div className="font-semibold text-sm">Offer Rejected</div>
+              <div className="font-semibold text-sm">Offer Accepted</div>
               <Button
                 variant="ghost"
                 size="icon"
