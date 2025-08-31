@@ -37,6 +37,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ChatBot from "@/components/ChatBot"
 import { motion } from "framer-motion";
 import Image from "next/image"
+import { checkUserAuth } from "@/lib/auth"
 
 const LandingPage = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -56,22 +57,13 @@ const LandingPage = () => {
   }
 
   // Function to check if user is logged in and get user type
-  const checkUserAuth = () => {
-    const startupId = localStorage.getItem("StartupId")
-    const investorId = localStorage.getItem("InvestorId")
-    
-    if (startupId) {
-      return { isLoggedIn: true, userType: "startup" as const }
-    } else if (investorId) {
-      return { isLoggedIn: true, userType: "investor" as const }
-    } else {
-      return { isLoggedIn: false, userType: null }
-    }
+  const checkUserAuthLocal = () => {
+    return checkUserAuth()
   }
 
   // Function to handle navigation based on user type
   const handleNavigation = (targetType: "startup" | "investor") => {
-    const { isLoggedIn, userType } = checkUserAuth()
+    const { isLoggedIn, userType } = checkUserAuthLocal()
     
     if (!isLoggedIn) {
       // If not logged in, redirect to login page
@@ -90,7 +82,7 @@ const LandingPage = () => {
 
   // Function to handle "Get Started" button
   const handleGetStarted = () => {
-    const { isLoggedIn, userType } = checkUserAuth()
+    const { isLoggedIn, userType } = checkUserAuthLocal()
     
     if (!isLoggedIn) {
       // If not logged in, redirect to register page

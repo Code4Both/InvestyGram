@@ -424,6 +424,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { clearAuthData } from "@/lib/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -547,15 +548,14 @@ export default function Navbar() {
         throw new Error("Logout failed");
       }
 
-      // Clear localStorage
-      localStorage.removeItem("UserId");
-      localStorage.removeItem("StartupId");
-      localStorage.removeItem("InvestorId");
-      localStorage.removeItem("userName");
+      // Clear localStorage using utility function
+      clearAuthData();
 
       setIsAuthenticated(false);
       toast.success("Logged out successfully");
-      router.push("/auth/login");
+      
+      // Use replace instead of push to prevent back button from going to protected pages
+      router.replace("/auth/login");
     } catch (error) {
       toast.error("Failed to logout");
     }

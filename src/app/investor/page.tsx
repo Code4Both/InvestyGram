@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronRight, Search, FileText, CreditCard } from "lucide-react";
 import Link from "next/link";
@@ -7,9 +7,37 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
+import { checkUserAuth } from "@/lib/auth";
 
 const InvestorTutorialSection = () => {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in as investor using utility function
+    const { isLoggedIn, userType } = checkUserAuth();
+    
+    if (!isLoggedIn || userType !== "investor") {
+      // If not logged in or wrong user type, redirect to login
+      router.replace("/auth/login");
+      return;
+    }
+    
+    setIsLoading(false);
+  }, [router]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
     <section
