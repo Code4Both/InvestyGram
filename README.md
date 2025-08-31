@@ -11,7 +11,7 @@ InvestyGram also incorporates a ranking and scoring system that evaluates startu
 ## 📌 Features
 
 ### 🎯 For Startups:
-- Register with detailed business information 📋
+- Register with detailed business informations 📋
 - Upload pitch videos & supporting documents 🎥
 - Participate in live funding rounds 💰
 - Get a startup profile score based on vision, ROI, and AOI ✅
