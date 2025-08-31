@@ -2,6 +2,7 @@
 // import CustomLayout from "../customLanding"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import Footer from "@/components/Footer"
 import {
   UploadCloud,
@@ -42,6 +43,7 @@ const LandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [currentImageSrc, setCurrentImageSrc] = useState("/logo.webp")
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
@@ -51,6 +53,57 @@ const LandingPage = () => {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
+  }
+
+  // Function to check if user is logged in and get user type
+  const checkUserAuth = () => {
+    const startupId = localStorage.getItem("StartupId")
+    const investorId = localStorage.getItem("InvestorId")
+    
+    if (startupId) {
+      return { isLoggedIn: true, userType: "startup" as const }
+    } else if (investorId) {
+      return { isLoggedIn: true, userType: "investor" as const }
+    } else {
+      return { isLoggedIn: false, userType: null }
+    }
+  }
+
+  // Function to handle navigation based on user type
+  const handleNavigation = (targetType: "startup" | "investor") => {
+    const { isLoggedIn, userType } = checkUserAuth()
+    
+    if (!isLoggedIn) {
+      // If not logged in, redirect to login page
+      router.push("/auth/login")
+      return
+    }
+    
+    if (userType === targetType) {
+      // If user is already the target type, redirect to their dashboard
+      router.push(targetType === "startup" ? "/startups" : "/investor")
+    } else {
+      // If user is different type, redirect to login page
+      router.push("/auth/login")
+    }
+  }
+
+  // Function to handle "Get Started" button
+  const handleGetStarted = () => {
+    const { isLoggedIn, userType } = checkUserAuth()
+    
+    if (!isLoggedIn) {
+      // If not logged in, redirect to register page
+      router.push("/auth/register")
+      return
+    }
+    
+    // If logged in, redirect to appropriate dashboard
+    if (userType === "startup") {
+      router.push("/startups")
+    } else if (userType === "investor") {
+      router.push("/investor")
+    }
   }
 
   return (
@@ -77,20 +130,31 @@ const LandingPage = () => {
                   From Ideas to Impact – Get Started Now.              </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                  <Link href="/auth/register">
-                    <Button size="lg" className="bg-green-300 text-primary hover:bg-green-300/70 w-full sm:w-auto">
-                      Get Started
-                    </Button>
-                  </Link>
-                  {/* <Link href="#how-it-works">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white text-black hover:bg-white/10 w-full sm:w-auto"
+                  <Button 
+                    size="lg" 
+                    className="bg-green-300 text-primary hover:bg-green-300/70 w-full sm:w-auto"
+                    onClick={handleGetStarted}
                   >
-                    See How It Works
+                    Get Started
                   </Button>
-                </Link> */}
+                  {/* <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-black text-white hover:bg-white/10 w-full sm:w-auto"
+                      onClick={() => handleNavigation("startup")}
+                    >
+                      For Startups
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-black border-none text-white hover:bg-white/10 w-full sm:w-auto"
+                      onClick={() => handleNavigation("investor")}
+                    >
+                      For Investors
+                    </Button>
+                  </div> */}
                 </div>
 
                 <div className="text-sm opacity-80 pt-2">Invest Today, Empower Tomorrow – Your Future Starts Here.</div>
@@ -258,12 +322,13 @@ const LandingPage = () => {
             </div>
 
             <div className="mt-12 text-center">
-              <Link href="/startup-registration">
-                <Button className="group bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 backdrop-blur-sm hover:animate-none">
-                  Get Started
-                  <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+              <Button 
+                className="group bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 backdrop-blur-sm hover:animate-none"
+                onClick={() => handleNavigation("startup")}
+              >
+                Get Started
+                <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </div>
           </div>
         </section>
@@ -364,12 +429,13 @@ const LandingPage = () => {
             </div>
 
             <div className="mt-12 text-center">
-              <Link href="/investor-registration">
-                <Button className="group bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 backdrop-blur-sm  hover:animate-none">
-                  Get Started
-                  <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+              <Button 
+                className="group bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 backdrop-blur-sm  hover:animate-none"
+                onClick={() => handleNavigation("investor")}
+              >
+                Get Started
+                <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </div>
           </div>
         </section>
@@ -544,20 +610,22 @@ const LandingPage = () => {
               Join hundreds of startups and investors achieving growth through smart matches and secure deals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/signup">
-                <Button size="lg" variant="secondary" className="w-full sm:w-auto">
-                  Get Started
-                </Button>
-              </Link>
-              <Link href="/pricing">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-primary-foreground text-black hover:bg-black hover:text-white w-full sm:w-auto"
-                >
-                  Explore Investor Plans
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="w-full sm:w-auto"
+                onClick={handleGetStarted}
+              >
+                Get Started
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground text-black hover:bg-black hover:text-white w-full sm:w-auto"
+                onClick={() => handleNavigation("investor")}
+              >
+                Explore Investor Plans
+              </Button>
             </div>
             <p className="mt-6 text-sm opacity-80">  Fuel Dreams, Fund Futures – Where Investors Meet Innovation</p>
           </div>
