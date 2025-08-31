@@ -107,7 +107,6 @@ const LandingPage = () => {
                         alt="InvestyGram Dashboard"
                         className="rounded shadow-lg"
                         onError={() => {
-                          // Try different image formats if one fails
                           if (currentImageSrc === "/logo.webp") {
                             setCurrentImageSrc("/logo2.png");
                           } else if (currentImageSrc === "/logo2.png") {
